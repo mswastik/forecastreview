@@ -6,7 +6,7 @@ from os import path
 import json
 import io
 import math
-from pncharts import *
+from pncharts1 import *
 from sql import dmt,cld
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -26,8 +26,8 @@ pn.extension('tabulator')
 alt.data_transformers.disable_max_rows()
 
 
-
-temp = pn.template.MaterialTemplate(title='Automated Insights',accent_base_color=ACCENT,header_background=ACCENT,prevent_collision=True)
+#temp = pn.template.MaterialTemplate(title='Automated Insights',accent_base_color=ACCENT,header_background=ACCENT,prevent_collision=True)
+temp = pn.template.MaterialTemplate(title='Automated Insights',header_background=ACCENT)
 #brush = alt.selection_point(fields=['CatalogNumber'],name='brush')
 class A(param.Parameterized):
     df=param.DataFrame()
@@ -47,7 +47,8 @@ unv=pn.widgets.TextInput(name="User Name")
 psv=pn.widgets.PasswordInput(name="Password")
 sab=pn.widgets.Button(name="Save",button_type='primary')
 
-expp = pn.Card(pn.Row(unv,psv,sab),title='Credentials',sizing_mode='stretch_width',style=dict(background='#FFFFFF'),header_background="#FFFFFF",header_color="#000000",collapsed=True).servable()
+#expp = pn.Card(pn.Row(unv,psv,sab),title='Credentials',sizing_mode='stretch_width',style=dict(background='#FFFFFF'),header_background="#FFFFFF",header_color="#000000",collapsed=True).servable()
+expp = pn.Card(pn.Row(unv,psv,sab),title='Credentials',sizing_mode='stretch_width',header_background="#FFFFFF",header_color="#000000",collapsed=True).servable()
 
 try:
     with open('config.json') as json_file:
@@ -114,9 +115,45 @@ def data(e):
 
 cp=pn.Row()
 
+def lpr(e):
+    df=pd.read_parquet(f'{cwd}\\{[co.value]}-{[fr.value]}.parquet') # CHANGE TO POLARS
+    df=pl.from_pandas(df)
+    #df1=df[(df['SALES_DATE']>=datetime(today.year,today.month,1)-relativedelta(months=12)) & (df['SALES_DATE']<=datetime(today.year,today.month,1)+relativedelta(months=12))] # CHANGE TO POLARS
+    #df1.loc[df1['SALES_DATE']<datetime(today.year,today.month,1),'actwfc']= df1['`Act Orders Rev'].copy() # CHANGE TO POLARS
+    #df1.loc[df1['SALES_DATE']>=datetime(today.year,today.month,1),'actwfc']= df1['`Fcst DF Final Rev'].copy() # CHANGE TO POLARS
+    #cc=df1.groupby('CatalogNumber').sum(numeric_only=True)[['actwfc']].sort_values(by='actwfc',ascending=False).reset_index()['CatalogNumber'][:sk.value].values.tolist() # CHANGE TO POLARS
+    #a.df=df.copy()
+    #df=pl.read_parquet(f"C:\\Users\\smishra14\\OneDrive - Stryker\\python\\app\\['INDIA']-['Joint Replacement'].parquet")
+    df1=df.filter((df['SALES_DATE']>=datetime(today.year,today.month,1)-relativedelta(months=12)) & (df['SALES_DATE']<=datetime(today.year,today.month,1)+relativedelta(months=12)))
+    df1=df1.with_columns((pl.when(df1['SALES_DATE']<datetime(today.year,today.month,1)).then(df1['`Act Orders Rev']).otherwise(df1['`Fcst DF Final Rev'])).alias('actwfc'))
+    cc=list(df1.group_by('CatalogNumber').sum().sort(by='actwfc',descending=True)['CatalogNumber'][:sk.value])
+    a.cc=cc
+    #df2=pl.from_pandas(df)
+    df1=df.filter(df["CatalogNumber"].is_in(cc))
+    df1=df1.with_columns(abs(df1['`Act Orders Rev']-df1[a.l2fc]).alias('L2 Abs Var'))
+    df1=df1.with_columns((1-df1['L2 Abs Var']/df1['`Act Orders Rev']).alias('L2 Acc'))
+    df1=df1.with_columns(pl.when(df1['`Act Orders Rev']==0).then(1).otherwise(df1['L2 Acc']))
+    df1=df1.with_columns(df1['L2 Acc'].clip(0,df1['L2 Acc'].max()).alias('L2 Acc'))
+    df1=df1.filter((df1['SALES_DATE']>=datetime(today.year,today.month,1)-relativedelta(months=24)) & (df1['SALES_DATE']<=datetime(today.year,today.month,1)+relativedelta(months=24)))
+    acc1=df1.filter((df1['SALES_DATE']>=datetime(today.year,today.month,1)-relativedelta(months=3)) & (df1['SALES_DATE']<=datetime(today.year,today.month,1)-relativedelta(months=1)))
+    acc1=acc1.with_columns((acc1['`Act Orders Rev']/acc1['`Act Orders Rev'].sum()*100).alias('orders cont'))
+    acc1=acc1.with_columns((acc1['L2 Abs Var']/acc1['L2 Abs Var'].sum()*100).alias('var cont'))
+    acc1=acc1[['IBP Level 5','CatalogNumber','SALES_DATE','orders cont','var cont','L2 Acc']]
+    df1=df1.join(acc1,on=['CatalogNumber','SALES_DATE'],how='left')
+    df1=df1[['IBP Level 5','CatalogNumber','SALES_DATE','`Act Orders Rev',a.l0fc,a.l2fc,'orders cont','var cont','L2 Acc']]
+    df1=df1.with_columns((df1[a.l2fc]-df1[a.l0fc]).alias('change'))
+    df1=df1.with_columns(abs(df1['change']).alias('change'))
+    df1=df1.melt(['IBP Level 5','CatalogNumber','SALES_DATE','orders cont','var cont','L2 Acc','change'])
+    df1=df1.rename({'variable':'type'})
+    df1=df1.with_columns(df1['L2 Acc'].diff().alias('Decrease'))
+    #df1=df1.filter(df1['Decrease']<0).sort('Decrease')
+    a.df=df1.to_pandas()
+    #print(a.df)
+
 async def conp(e):
     conb.button_style,accb.button_style,covb.button_style,corb.button_style,fccb.button_style,lttb.button_style='outline','outline','outline','outline','outline','outline'
     conb.button_style='solid'
+    print(a.df)
     a.ch=cont(a.df,a.l2fc,a.l0fc,a.cc,cp)
     cp.clear()
     cp.append(a.ch)
@@ -200,28 +237,7 @@ def enbf(e):
     df=data()
     df.to_parquet(f'{co.value}-{fr.value}.parquet')
 
-def lpr(e):
-    df=pd.read_parquet(f'{cwd}\\{[co.value]}-{[fr.value]}.parquet') # CHANGE TO POLARS
-    df1=df[(df['SALES_DATE']>=datetime(today.year,today.month,1)-relativedelta(months=12)) & (df['SALES_DATE']<=datetime(today.year,today.month,1)+relativedelta(months=12))] # CHANGE TO POLARS
-    df1.loc[df1['SALES_DATE']<datetime(today.year,today.month,1),'actwfc']= df1['`Act Orders Rev'].copy() # CHANGE TO POLARS
-    df1.loc[df1['SALES_DATE']>=datetime(today.year,today.month,1),'actwfc']= df1['`Fcst DF Final Rev'].copy() # CHANGE TO POLARS
-    cc=df1.groupby('CatalogNumber').sum(numeric_only=True)[['actwfc']].sort_values(by='actwfc',ascending=False).reset_index()['CatalogNumber'][:sk.value].values.tolist() # CHANGE TO POLARS
-    a.df=df.copy()
-    a.cc=cc
-    df2=pl.from_pandas(df)
-    df2=df2.filter(df2["CatalogNumber"].is_in(cc))
-    df2=df2.with_columns(abs(df2['`Act Orders Rev']-df2[a.l2fc]).alias('L2 Abs Var'))
-    df2=df2.with_columns((1-df2['L2 Abs Var']/df2['`Act Orders Rev']).alias('L2 Acc'))
-    df2=df2.with_columns(pl.when(df2['`Act Orders Rev']==0).then(1).otherwise(df2['L2 Acc']))
-    df2=df2.with_columns(df2['L2 Acc'].clip(0,df2['L2 Acc'].max()).alias('L2 Acc'))
-    df2=df2.filter((df2['SALES_DATE']>=datetime(today.year,today.month,1)-relativedelta(months=24)) & (df2['SALES_DATE']<=datetime(today.year,today.month,1)+relativedelta(months=24)))
-    acc1=df2.filter((df2['SALES_DATE']>=datetime(today.year,today.month,1)-relativedelta(months=3)) & (df2['SALES_DATE']<=datetime(today.year,today.month,1)-relativedelta(months=1)))
-    acc1=acc1.with_columns((acc1['`Act Orders Rev']/acc1['`Act Orders Rev'].sum()*100).alias('orders cont'))
-    acc1=acc1.with_columns((acc1['L2 Abs Var']/acc1['L2 Abs Var'].sum()*100).alias('var cont'))
-    acc1=acc1[['CatalogNumber','SALES_DATE','orders cont','var cont']]
-    df2=df2.join(acc1,on=['CatalogNumber','SALES_DATE'],how='left')
-    df2=df2[['CatalogNumber','SALES_DATE','`Act Orders Rev',a.l0fc,a.l2fc,'orders cont','var cont']]
-    df2=df2.melt(['CatalogNumber','SALES_DATE','orders cont','var cont'])
+
 
 def exp(e):
     buffer = io.BytesIO()

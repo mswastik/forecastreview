@@ -17,7 +17,7 @@ from pretty_html_table import build_table
 #import os
 from misc import options,css,fran,coun,em
 
-cwd="C:\\Users\\smishra14\\OneDrive - Stryker\\python\\app"
+cwd=""
 today=datetime.today()
 ACCENT='#FFCC33'
 pn.extension(nthreads=8)
@@ -116,7 +116,8 @@ def data(e):
 cp=pn.Row()
 
 def lpr(e):
-    df=pd.read_parquet(f'{cwd}\\{[co.value]}-{[fr.value]}.parquet') # CHANGE TO POLARS
+    #df=pd.read_parquet(f'{cwd}\\{[co.value]}-{[fr.value]}.parquet') # CHANGE TO POLARS
+    df=pd.DataFrame()
     df=pl.from_pandas(df)
     #df1=df[(df['SALES_DATE']>=datetime(today.year,today.month,1)-relativedelta(months=12)) & (df['SALES_DATE']<=datetime(today.year,today.month,1)+relativedelta(months=12))] # CHANGE TO POLARS
     #df1.loc[df1['SALES_DATE']<datetime(today.year,today.month,1),'actwfc']= df1['`Act Orders Rev'].copy() # CHANGE TO POLARS

@@ -38,11 +38,12 @@ def alt_theme():
 alt.themes.register("alt_theme", alt_theme)
 alt.themes.enable("alt_theme")
 
-cwd="C:\\Users\\smishra14\\OneDrive - Stryker\\python\\app"
+cwd=""
 
 class B(param.Parameterized):
     df=param.DataFrame()
-    sdf=pd.read_parquet(f"{cwd}\\{['INDIA']}-{['Joint Replacement']}.parquet")
+    sdf=pd.DataFrame()
+    #sdf=pd.read_parquet(f"{cwd}\\{['INDIA']}-{['Joint Replacement']}.parquet")
     sdf=sdf[['Country','IBP Level 5','CatalogNumber']]
     sdf=sdf.drop_duplicates()
     sdf=param.DataFrame(sdf)

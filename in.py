@@ -272,4 +272,4 @@ temp.main.append(tb)
 pn.config.raw_css.append(css)
 #temp.config.raw_css.append(css)
 #pn.serve(temp)  # USE WITH PYTHON IN.PY
-temp.show()  # USE WITH PANEL SERVE
+temp.show(websocket_origin='forecastreview.onrender.com')  # USE WITH PANEL SERVE

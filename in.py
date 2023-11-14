@@ -1,7 +1,7 @@
 import pandas as pd
 import altair as alt
 import panel as pn
-from turbodbc import connect, make_options, Megabytes
+#from turbodbc import connect, make_options, Megabytes
 from os import path
 import json
 import io
@@ -98,7 +98,7 @@ def data(e):
     ss="gda-globalsynapseanalytics-ws-prod.sql.azuresynapse.net"
     #cnxn.close()
     print(fr.value,co.value)
-    cnxn=connect(DRIVER='ODBC Driver 17 for SQL Server',server=ss,user=f'{unv}',password=psv,database="gda_glbsyndb",Trusted_Connection='yes', turbodbc_options=options)
+    #cnxn=connect(DRIVER='ODBC Driver 17 for SQL Server',server=ss,user=f'{unv}',password=psv,database="gda_glbsyndb",Trusted_Connection='yes', turbodbc_options=options)
     if fr.value in ['Instruments','Joint Replacement','Spine','Trauma and Extremities','Neurovascular']:
         query = dmt()
     elif fr.value in ['CMF','Endoscopy','Sustainability']:

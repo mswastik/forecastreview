@@ -4,5 +4,4 @@ panel
 turbodbc
 polars
 param
-pywin32
 pretty_html_table

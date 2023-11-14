@@ -2,7 +2,6 @@ wheel
 pandas
 altair
 panel
-turbodbc
 polars
 param
 pretty_html_table

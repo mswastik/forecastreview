@@ -12,7 +12,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import polars as pl
 import param
-import win32com.client as win32
+#import win32com.client as win32
 from pretty_html_table import build_table
 #import os
 from misc import options,css,fran,coun,em
@@ -250,23 +250,7 @@ enb.on_click(data)
 ldb.on_click(lpr)
 
 def smf(e):  ##Send MAIL
-    outlook=win32.Dispatch('outlook.application')
-    mail=outlook.CreateItem(0)
-    print(mi.value)
-    mail.To=mi.value
-    mail.Subject='[Automated Mail]'
-    mail.Body='Message body'
-    mail.HTMLBody='<h2>Exceptions</h2><br><p>Dear All,<p><br><p>Forecast of below SKUs needs to be reviewed as these are found to be exceptions based on predefined criteria.</p>' + build_table(a.tdf, 'yellow_light') +'<br><p>Regards,<br><p>Stat COE Team<p>'
-    sdf=a.df[a.df['CatalogNumber'].isin(a.tdf['CatalogNumber'])]
-    print(sdf)
-    #c2=alt.Chart(a.tdf).mark_line(point=True).encode(alt.X('SALES_DATE:T', axis=alt.Axis(format="%b-%y")),y='sum(value):Q',color='type',tooltip=['sum(value):Q','SALES_DATE']).properties(height=390,width=500)
-    #fi=open('Analytics.html','w', encoding="utf8")
-    #fi.write(f"<h2>Correlation</h2><br> {build_table(a.df[:10], 'yellow_light')} <br>  {a.ch.to_html(full_html=False,include_plotlyjs='cdn')}")
-    #fi.close()
-    #df4.to_excel('Analytics.xlsx',index=False)
-    #mail.Attachments.Add(os.getcwd()+'\\Analytics-master.html')
-    #mail.Attachments.Add(os.getcwd()+'\\Analytics.xlsx')
-    mail.Send()
+    pass
 
 mi=pn.widgets.AutocompleteInput(name="Email ID",options=em, restrict=False)
 smb=pn.widgets.Button(name="Send",button_type='primary',on_click=smf,margin=(15,9))

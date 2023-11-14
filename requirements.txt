@@ -1,0 +1,8 @@
+pandas
+altair
+panel
+turbodbc
+polars
+param
+win32com
+pretty_html_table

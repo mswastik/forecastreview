@@ -3,6 +3,3 @@ altair
 panel
 polars
 param
-pretty_html_table
-fastparquet
-nicegui

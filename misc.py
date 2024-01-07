@@ -38,4 +38,4 @@ css = '''
 fran=['CMF','Instruments','Joint Replacement', 'Trauma and Extremities','Endoscopy','Spine']
 coun=['INDIA', 'CHINA','UNITED STATES','JAPAN','AUSTRALIA']
 
-em=['swastik.mishra@stryker.com','pratik.deshmukh@stryker.com','siddharth.agarwal1@stryker.com']
+em=['swastik.mishra@fff.com','pratik.h@fff.com','s.agarwal@fff.com']
